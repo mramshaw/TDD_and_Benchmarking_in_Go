@@ -4,11 +4,11 @@ I was experimenting with [TinyGo](http://github.com/mramshaw/TinyGo) and thought
 at string reversal. This is pretty easy to do __bytewise__ in TinyGo but not yet possible __runewise__
 (rune conversion is on the TinyGo todo list).
 
-Based upon recent discussions about TDD & Testing and looking at the example code in:
+Following discussions about how to reverse a string, a quick search revealed the following code:
 
     http://github.com/golang/example/tree/master/stringutil
 
-It seemed to me that the tests implemented there do not meet the criteria of what ***I*** would do.
+And a podcast I was listening to discussed how optimization goals might change depending upon use case.
 
 Accordingly, it seemed to be time for a refresher on TDD and Benchmarking in Golang using
 this code as a basis.
@@ -21,12 +21,62 @@ The stated goals for the code are:
 
 My intent here is to examine (and possibly improve) the third goal.
 
+## Contents
+
+The contents are as follows:
+
+* [Prequisites](#prerequisites)
+* [Current tests](#current-tests)
+* [Current code coverage](#current-code-coverage)
+* [Discussion](#discussion)
+    * [Byte](#byte)
+    * [Rune](#rune)
+    * [Strings](#strings)
+* [Reference](#reference)
+* [To Do](#to-do)
+* [Credits](#credits)
+
+## Prerequisites
+
+Golang (version __1.11__ or better) installed and configured.
+
+## Current tests
+
+As things stand, only one test (TestReverse) is currently defined:
+
+```bash
+$ cd stringutil
+$ go test -v
+=== RUN   TestReverse
+--- PASS: TestReverse (0.00s)
+PASS
+ok  	_/home/owner/Documents/GO/TDD_and_Benchmarking_in_Go/stringutil	0.001s
+$
+```
+
+However, this is a ___table-driven test___ which covers multiple tests (including, most importantly,
+the ___empty string___ - which is often a useful edge case).
+
+## Current code coverage
+
+Currently, 100% of the code is covered (this is generally only possible for small libraries):
+
+```bash
+$ go test -v -cover
+=== RUN   TestReverse
+--- PASS: TestReverse (0.00s)
+PASS
+coverage: 100.0% of statements
+ok  	_/home/owner/Documents/GO/TDD_and_Benchmarking_in_Go/stringutil	0.001s
+$
+```
+
 ## Discussion
 
 Some points to keep in mind are as follows.
 
-[These are from the __builtin__ package documentation, which is where native Golang data
-types - which would otherwise be undocumented - are documented.]
+[These are from the [builtin](http://golang.org/pkg/builtin/) package documentation, which is
+ where native Golang data types - which would otherwise be undocumented - are documented.]
 
 #### Byte
 
@@ -93,10 +143,12 @@ Somewhat inspired by this fascinating podcast ("Compilers, LLVM, Swift, TPU, and
 [Lex Fridman usually has fascinating guests & prepares really interesting questions.
  The key reminder was that it is possible to optimize for different use cases.]
 
-Also by this interesting podcast ("It's time to talk about testing"):
+Also by this interesting Go Time podcast ("It's time to talk about testing"):
 
     http://changelog.com/gotime/83
 
 [The inspiration here was the discussion around whether or not 100% code
  coverage was really sufficient. TL;DR - it really depends upon the test
- quality.]
+ quality. My personal view is that 100% code coverage is not always
+ desireable or even possible. Nevertheless, more code coverage is
+ almost always (but not always) better than less code coverage.]
