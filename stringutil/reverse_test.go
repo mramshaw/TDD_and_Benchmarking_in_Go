@@ -32,3 +32,21 @@ func TestReverse(t *testing.T) {
 		}
 	}
 }
+
+func benchmarkReverse(s string, b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		Reverse(s)
+	}
+}
+
+func BenchmarkReverseBytes(b *testing.B) {
+	benchmarkReverse("Hello, world", b)
+}
+
+func BenchmarkReverseEmptyString(b *testing.B) {
+	benchmarkReverse("", b)
+}
+
+func BenchmarkReverseRunes(b *testing.B) {
+	benchmarkReverse("Hello, 世界", b)
+}

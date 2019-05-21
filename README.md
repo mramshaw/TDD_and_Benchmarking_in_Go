@@ -26,8 +26,10 @@ My intent here is to examine (and possibly improve) the third goal.
 The contents are as follows:
 
 * [Prequisites](#prerequisites)
-* [Current tests](#current-tests)
-* [Current code coverage](#current-code-coverage)
+* [stringutil](#stringutil)
+    * [Current tests](#current-tests)
+    * [Current code coverage](#current-code-coverage)
+    * [Current benchmarks](#current-benchmarks)
 * [Discussion](#discussion)
     * [Byte](#byte)
     * [Rune](#rune)
@@ -40,7 +42,13 @@ The contents are as follows:
 
 Golang (version __1.11__ or better) installed and configured.
 
-## Current tests
+## stringutil
+
+Rather than create some new code, by starting with an existing small codebase we
+can specifically restrict our efforts to testing and benchmarking. This approach
+has its advantages.
+
+#### Current tests
 
 As things stand, only one test (TestReverse) is currently defined:
 
@@ -57,7 +65,7 @@ $
 However, this is a ___table-driven test___ which covers multiple tests (including, most importantly,
 the ___empty string___ - which is often a useful edge case).
 
-## Current code coverage
+#### Current code coverage
 
 Currently, 100% of the code is covered (this is generally only possible for small libraries):
 
@@ -70,6 +78,27 @@ coverage: 100.0% of statements
 ok  	_/home/owner/Documents/GO/TDD_and_Benchmarking_in_Go/stringutil	0.001s
 $
 ```
+
+#### Current benchmarks
+
+After coding up some quick benchmarks, the results are:
+
+```bash
+$ go test -v -bench=. -cover
+=== RUN   TestReverse
+--- PASS: TestReverse (0.00s)
+goos: linux
+goarch: amd64
+BenchmarkReverseBytes-4         	10000000	       135 ns/op
+BenchmarkReverseEmptyString-4   	50000000	        28.6 ns/op
+BenchmarkReverseRunes-4         	10000000	       135 ns/op
+PASS
+coverage: 100.0% of statements
+ok  	_/home/owner/Documents/GO/TDD_and_Benchmarking_in_Go/stringutil	4.440s
+$
+```
+
+[These results are for __my__ computer; your results will probably be different.]
 
 ## Discussion
 
@@ -129,6 +158,7 @@ And:
 
 ## To Do
 
+- [x] Implement benchmarks
 - [ ] Implement better tests
 - [ ] Create different implementations of the code & benchmark them
 - [ ] Verify the optimization criteria for TinyGo
