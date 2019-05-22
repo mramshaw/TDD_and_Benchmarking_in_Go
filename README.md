@@ -33,6 +33,7 @@ The contents are as follows:
     * [Current benchmarks](#current-benchmarks)
     * [Memory allocations](#memory-allocations)
     * [Garbage Collection](#garbage-collection)
+    * [Alternatives](#alternatives)
 * [Discussion](#discussion)
     * [Byte](#byte)
     * [Rune](#rune)
@@ -124,9 +125,9 @@ ok  	_/home/owner/Documents/GO/TDD_and_Benchmarking_in_Go/stringutil	4.431s
 $
 ```
 
-Here we can see that the overall benchmarks have not changed but now we see both the number
-of memory allocations as well as the size of these allocations (in Bytes). Both of these are
-average values, where the values are averaged over the time the benchmarks were run.
+Here we can see that the overall benchmarks have not changed significantly but now we see both
+the number of memory allocations as well as the size of these allocations (in Bytes). Both of
+these are average values, where the values are averaged over the time the benchmarks were run.
 
 We can get more atomic information about our Benchmark Results if we wish:
 
@@ -205,10 +206,11 @@ ok  	_/home/owner/Documents/GO/TDD_and_Benchmarking_in_Go/stringutil	4.469s
 $
 ```
 
-[The above results were condensed slightly.]
+[The above results were condensed slightly. Only non-forced GCs were elided.]
 
 By my count, GC ran 152 times during this 4.5 second test (which kind of illustrates why GC must
-be taken into account).
+be taken into account). We can get even more granular by setting __scavenge=1__ but this is kind
+of overkill here (still, probably useful if checking for memory leaks).
 
 Maybe we can turn it off?
 
@@ -240,6 +242,7 @@ gc 16 @3.132s 0%: 0.019+0.064+0.043 ms clock, 0.076+0/0.054/0.091+0.17 ms cpu, 1
 PASS
 coverage: 100.0% of statements
 ok  	_/home/owner/Documents/GO/TDD_and_Benchmarking_in_Go/stringutil	4.490s
+$
 ```
 
 Okay, this eliminates all of the non-forced GCs (which is something - reducing GCs from 152 to 16).
@@ -253,9 +256,58 @@ From:
     http://golang.org/pkg/runtime/debug/#SetGCPercent
 
 Still, eliminating all non-forced GCs is something. It had a minimal impact on run time (4.469s to 4.490s),
-which evaluates to about 0.47 percent.
+which evaluates to about 0.47 percent (this may simply be the time required to report on GC).
 
 So about half a percent.
+
+#### Alternatives
+
+Okay, now that we've established our benchmarking procedure, lets verify things with some
+alternative implementations, which we will call __naive\_reverse.go__ and __better\_reverse.go__.
+These alternative implementations will have tests and benchmarks, which will all be the same.
+
+We are not expecting to improve upon the original code (which was written by Google, after
+all), merely to have some alternatives to benchmark.
+
+And the results are:
+
+```bash
+$ GOGC=-1 go test -v -bench=. -cover -benchmem
+=== RUN   TestBetterReverse
+--- PASS: TestBetterReverse (0.00s)
+=== RUN   TestNaiveReverse
+--- PASS: TestNaiveReverse (0.00s)
+=== RUN   TestReverse
+--- PASS: TestReverse (0.00s)
+goos: linux
+goarch: amd64
+BenchmarkBetterReverseBytes-4         	10000000	       173 ns/op	      64 B/op	       2 allocs/op
+BenchmarkBetterReverseEmptyString-4   	50000000	        34.6 ns/op	       3 B/op	       1 allocs/op
+BenchmarkBetterReverseRunes-4         	10000000	       172 ns/op	      64 B/op	       2 allocs/op
+BenchmarkNaiveReverseBytes-4          	10000000	       163 ns/op	      64 B/op	       2 allocs/op
+BenchmarkNaiveReverseEmptyString-4    	50000000	        34.2 ns/op	       3 B/op	       1 allocs/op
+BenchmarkNaiveReverseRunes-4          	10000000	       164 ns/op	      64 B/op	       2 allocs/op
+BenchmarkReverseBytes-4               	10000000	       141 ns/op	      16 B/op	       1 allocs/op
+BenchmarkReverseEmptyString-4         	50000000	        28.5 ns/op	       3 B/op	       1 allocs/op
+BenchmarkReverseRunes-4               	10000000	       135 ns/op	      16 B/op	       1 allocs/op
+PASS
+coverage: 100.0% of statements
+ok  	_/home/owner/Documents/GO/TDD_and_Benchmarking_in_Go/stringutil	15.632s
+$
+```
+
+And it seems that our so-called ___naive___ implementation is actually better than our
+so-called ___better___ implentation.
+
+[It is for this reason that people say "premature optimization is the root of all evil".
+It is all too easy to "optimize" code that is not actually a bottleneck; likewise it is
+equally easy to make "improvements" to code that actually makes it slower.]
+
+As expected, neither of our new implementations comes close to the original.
+
+The key reason for this is that the original uses an ___atomic___ operation to swap
+runes in-place - which saves a second memory allocation. As well, this pretty much
+halves the number of iterations - for a small speed increase.
 
 ## Discussion
 
@@ -315,7 +367,9 @@ And:
 
 ## Versions
 
-The version of Golang used for this exercise is __1.11__:
+The version of Golang used for this exercise is __1.11__.
+
+Verify the version of Go as follows:
 
 ```bash
 $ go version
@@ -329,8 +383,8 @@ respect to how the handle Garbage Collection.
 ## To Do
 
 - [x] Implement benchmarks
-- [ ] Implement better tests
-- [ ] Create different implementations of the code & benchmark them
+<del>- [ ] Implement better tests</del>
+- [x] Create different implementations of the code & benchmark them
 - [ ] Verify the optimization criteria for TinyGo
 - [ ] Implement __runes__ in TinyGo
 
