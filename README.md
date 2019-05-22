@@ -212,7 +212,7 @@ By my count, GC ran 152 times during this 4.5 second test (which kind of illustr
 be taken into account). We can get even more granular by setting __scavenge=1__ but this is kind
 of overkill here (still, probably useful if checking for memory leaks).
 
-Maybe we can turn it off?
+Maybe we can turn Garbage Collection off?
 
 ```bash
 $ GODEBUG=gctrace=1 GOGC=-1 go test -v -bench=. -cover -benchmem
@@ -297,7 +297,7 @@ $
 ```
 
 And it seems that our so-called ___naive___ implementation is actually better than our
-so-called ___better___ implentation.
+so-called ___better___ implementation.
 
 [It is for this reason that people say "premature optimization is the root of all evil".
 It is all too easy to "optimize" code that is not actually a bottleneck; likewise it is
@@ -308,6 +308,12 @@ As expected, neither of our new implementations comes close to the original.
 The key reason for this is that the original uses an ___atomic___ operation to swap
 runes in-place - which saves a second memory allocation. As well, this pretty much
 halves the number of iterations - for a small speed increase.
+
+Here is the particularly clever part of the code:
+
+```Golang
+		r[i], r[j] = r[j], r[i]
+```
 
 ## Discussion
 
@@ -383,7 +389,6 @@ respect to how the handle Garbage Collection.
 ## To Do
 
 - [x] Implement benchmarks
-<del>- [ ] Implement better tests</del>
 - [x] Create different implementations of the code & benchmark them
 - [ ] Verify the optimization criteria for TinyGo
 - [ ] Implement __runes__ in TinyGo
