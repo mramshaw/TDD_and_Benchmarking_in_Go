@@ -67,8 +67,9 @@ ok  	_/home/owner/Documents/GO/TDD_and_Benchmarking_in_Go/stringutil	0.001s
 $
 ```
 
-However, this is a ___table-driven test___ which covers multiple tests (including, most importantly,
-the ___empty string___ - which is often a useful edge case).
+However, this is a [table-driven test](http://github.com/mramshaw/radix-trie#table-driven-tests)
+which covers multiple tests (including, most importantly, the ___empty string___ - which is
+often a useful edge case).
 
 #### Current code coverage
 
