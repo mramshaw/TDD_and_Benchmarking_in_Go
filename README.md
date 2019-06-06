@@ -316,6 +316,37 @@ Here is the particularly clever part of the code:
 		r[i], r[j] = r[j], r[i]
 ```
 
+Just for fun, let's try this again with a more recent version of Go (1.12.5):
+
+```bash
+$ GOGC=-1 go test -v -bench=. -cover -benchmem
+=== RUN   TestBetterReverse
+--- PASS: TestBetterReverse (0.00s)
+=== RUN   TestNaiveReverse
+--- PASS: TestNaiveReverse (0.00s)
+=== RUN   TestReverse
+--- PASS: TestReverse (0.00s)
+goos: linux
+goarch: amd64
+BenchmarkBetterReverseBytes-4         	10000000	       170 ns/op	      64 B/op	       2 allocs/op
+BenchmarkBetterReverseEmptyString-4   	50000000	        34.1 ns/op	       3 B/op	       1 allocs/op
+BenchmarkBetterReverseRunes-4         	10000000	       179 ns/op	      64 B/op	       2 allocs/op
+BenchmarkNaiveReverseBytes-4          	10000000	       160 ns/op	      64 B/op	       2 allocs/op
+BenchmarkNaiveReverseEmptyString-4    	50000000	        35.4 ns/op	       3 B/op	       1 allocs/op
+BenchmarkNaiveReverseRunes-4          	10000000	       167 ns/op	      64 B/op	       2 allocs/op
+BenchmarkReverseBytes-4               	10000000	       133 ns/op	      16 B/op	       1 allocs/op
+BenchmarkReverseEmptyString-4         	50000000	        31.1 ns/op	       3 B/op	       1 allocs/op
+BenchmarkReverseRunes-4               	10000000	       142 ns/op	      16 B/op	       1 allocs/op
+PASS
+coverage: 100.0% of statements
+ok  	_/home/owner/Documents/GO/TDD_and_Benchmarking_in_Go/stringutil	15.851s
+$
+```
+
+And there are some minor differences, but the overall results hold. Garbage collection in Go
+does get tweaked from time to time, however the overall execution time is about the same so
+it seems it hasn't been changed much with recent versions of Go.
+
 ## Discussion
 
 Some points to keep in mind are as follows.
@@ -384,13 +415,14 @@ go version go1.11 linux/amd64
 $
 ```
 
-Different version of Go can be expected to have different characteristics with
-respect to how the handle Garbage Collection.
+Different versions of Go can be expected to have different characteristics with
+respect to how they handle Garbage Collection.
 
 ## To Do
 
 - [x] Implement benchmarks
 - [x] Create different implementations of the code & benchmark them
+- [x] Re-run benchmarks with a more recent version of Go (1.12.5)
 - [ ] Verify the optimization criteria for TinyGo
 - [ ] Implement __runes__ in TinyGo
 
@@ -410,5 +442,5 @@ Also by this interesting Go Time podcast ("It's time to talk about testing"):
 [The inspiration here was the discussion around whether or not 100% code
  coverage was really sufficient. TL;DR - it really depends upon the test
  quality. My personal view is that 100% code coverage is not always
- desireable or even possible. Nevertheless, more code coverage is
+ desirable or even possible. Nevertheless, more code coverage is
  almost always (but not always) better than less code coverage.]
