@@ -347,6 +347,62 @@ And there are some minor differences, but the overall results hold. Garbage coll
 does get tweaked from time to time, however the overall execution time is about the same so
 it seems it hasn't been changed much with recent versions of Go.
 
+I ran into another variant ([utf8_reverse.go](stringutil/utf8_reverse.go)) when forking my
+[libfoo](https://github.com/mramshaw/libfoo) project.
+
+So I decided to include that version also ... benchmarking again, this time with Go (1.14):
+
+```bash
+$ GOGC=-1 go test -v -bench=. -cover -benchmem
+=== RUN   TestBetterReverse
+--- PASS: TestBetterReverse (0.00s)
+=== RUN   TestNaiveReverse
+--- PASS: TestNaiveReverse (0.00s)
+=== RUN   TestReverse
+--- PASS: TestReverse (0.00s)
+=== RUN   TestUtf8Reverse
+--- PASS: TestUtf8Reverse (0.00s)
+goos: linux
+goarch: amd64
+BenchmarkBetterReverseBytes
+BenchmarkBetterReverseBytes-8         	 6801306	       172 ns/op	      64 B/op	       2 allocs/op
+BenchmarkBetterReverseEmptyString
+BenchmarkBetterReverseEmptyString-8   	33864205	        34.8 ns/op	       3 B/op	       1 allocs/op
+BenchmarkBetterReverseRunes
+BenchmarkBetterReverseRunes-8         	 6988573	       173 ns/op	      64 B/op	       2 allocs/op
+BenchmarkNaiveReverseBytes
+BenchmarkNaiveReverseBytes-8          	 7519150	       162 ns/op	      64 B/op	       2 allocs/op
+BenchmarkNaiveReverseEmptyString
+BenchmarkNaiveReverseEmptyString-8    	34885170	        33.6 ns/op	       3 B/op	       1 allocs/op
+BenchmarkNaiveReverseRunes
+BenchmarkNaiveReverseRunes-8          	 7413006	       162 ns/op	      64 B/op	       2 allocs/op
+BenchmarkReverseBytes
+BenchmarkReverseBytes-8               	 8720648	       137 ns/op	      16 B/op	       1 allocs/op
+BenchmarkReverseEmptyString
+BenchmarkReverseEmptyString-8         	38550529	        29.3 ns/op	       3 B/op	       1 allocs/op
+BenchmarkReverseRunes
+BenchmarkReverseRunes-8               	 8709807	       136 ns/op	      16 B/op	       1 allocs/op
+BenchmarkUtf8ReverseBytes
+BenchmarkUtf8ReverseBytes-8           	 7992130	       152 ns/op	      64 B/op	       2 allocs/op
+BenchmarkUtf8ReverseEmptyString
+BenchmarkUtf8ReverseEmptyString-8     	43336635	        27.6 ns/op	       3 B/op	       1 allocs/op
+BenchmarkUtf8ReverseRunes
+BenchmarkUtf8ReverseRunes-8           	 8276785	       150 ns/op	      80 B/op	       2 allocs/op
+PASS
+coverage: 100.0% of statements
+ok  	_/home/martin/Documents/Go/TDD_and_Benchmarking_in_Go/stringutil	16.020s
+$
+```
+
+And it seems there are now differences in the way results are reported, but the overall results hold.
+
+As expected, the __utf8__ version is sub-optimal (it's basically the same as the optimal version apart
+from the way the input string gets converted into a rune array - which is sub-optimal as it takes longer
+and usually requires another memory allocation).
+
+Things do get tweaked from time to time in Go, but the execution time is about the same as in previous
+versions of Go so that seems fine.
+
 ## Discussion
 
 Some points to keep in mind are as follows.
@@ -423,6 +479,8 @@ respect to how they handle Garbage Collection.
 - [x] Implement benchmarks
 - [x] Create different implementations of the code & benchmark them
 - [x] Re-run benchmarks with a more recent version of Go (1.12.5)
+- [x] Add a UTF8 version
+- [x] Re-run benchmarks with a more recent version of Go (1.14)
 - [ ] Verify the optimization criteria for TinyGo
 - [ ] Implement __runes__ in TinyGo
 
