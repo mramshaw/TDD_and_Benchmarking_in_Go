@@ -502,3 +502,5 @@ Also by this interesting Go Time podcast ("It's time to talk about testing"):
  quality. My personal view is that 100% code coverage is not always
  desirable or even possible. Nevertheless, more code coverage is
  almost always (but not always) better than less code coverage.]
+
+The [utf8_reverse.go](stringutil/utf8_reverse.go) code is from [Roger Chapman](https://github.com/rogchap).
