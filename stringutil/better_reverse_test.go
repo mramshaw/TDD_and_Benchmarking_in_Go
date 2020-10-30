@@ -1,6 +1,9 @@
 package stringutil
 
-import "testing"
+import (
+    "testing"
+    "github.com/stretchr/testify/assert"
+)
 
 func TestBetterReverse(t *testing.T) {
 	for _, c := range []struct {
@@ -11,9 +14,7 @@ func TestBetterReverse(t *testing.T) {
 		{"", ""},
 	} {
 		got := BetterReverse(c.in)
-		if got != c.want {
-			t.Errorf("BetterReverse(%q) == %q, want %q", c.in, got, c.want)
-		}
+		assert.Equalf(t, got, c.want, "BetterReverse(%q) returned %q, wanted %q", c.in, got, c.want)
 	}
 }
 

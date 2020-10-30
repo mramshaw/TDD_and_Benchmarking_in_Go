@@ -481,6 +481,7 @@ respect to how they handle Garbage Collection.
 - [x] Re-run benchmarks with a more recent version of Go (1.12.5)
 - [x] Add a UTF8 version
 - [x] Re-run benchmarks with a more recent version of Go (1.14)
+- [x] Implement [testify](https://github.com/stretchr/testify) [assertions](https://godoc.org/github.com/stretchr/testify/assert)
 - [ ] Verify the optimization criteria for TinyGo
 - [ ] Implement __runes__ in TinyGo
 
